@@ -75,8 +75,8 @@ def validate_recall():
 def validate_probas_to_F1():
     from main import probas_to_F1
 
-    y_true = np.array([1, 0.5, 0, 1])  # Fictional example
-    y_pred = np.array([1, 0, 0, 0.22])  # Fictional example
+    y_true = np.array([1, 0, 0, 1])  # Fictional example
+    y_pred = np.array([1, 0.5, 0, 0.22])  # Fictional example
 
     F1_score = probas_to_F1(y_true, y_pred)
 
