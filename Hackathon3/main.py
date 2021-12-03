@@ -1,6 +1,6 @@
 """
 Submission file for Hackathon 3.
-Group: <group_number>
+Group: 2
 
 Please, make sure this file passes tests from `validate.py` before submitting!
 
@@ -15,6 +15,8 @@ Warning: plagiarism is not tolerated and we can detect it
 """
 
 import numpy as np
+from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import KFold
 
 
 def precision(cm):
@@ -25,10 +27,8 @@ def precision(cm):
     @post:
         - score: precision (or positive predictive value), associated with cm
     -----------------------------------------------------------------------------------------"""
-    # Start of the contribution
-    ppv = 1
-
-    # End of the contribution
+    _, fp, _, tp = cm.ravel()
+    ppv = tp/(tp+fp)
     return ppv
 
 
@@ -40,9 +40,8 @@ def recall(cm):
     @post:
         - r: recall (or true positive rate), associated with cm
     -----------------------------------------------------------------------------------------"""
-    # Start of the contribution
-    tpr = 1
-    # End of the contribution
+    _, _, fn, tp = cm.ravel()
+    tpr = tp/(tp+fn)
     return tpr
 
 
@@ -63,19 +62,12 @@ def probas_to_F1(y_true, y_pred, output="F1", threshold=0.5):
 
     y_pred = pred_probas_to_pred_labels(y_pred, threshold)
 
-    # Start of the contribution
+    cm = confusion_matrix(y_true, y_pred)
+    ppv = precision(cm)
+    tpr = recall(cm)
+    F1_score = 2*ppv*tpr/(ppv+tpr) 
 
-    # TO MODIFY
-    ppv = 0  # positive predictive value (or precision)
-    tpr = 0  # true positive rate (or recall)
-    F1_score = 0.0
-
-    if output == "PRF1":
-        return (ppv, tpr, F1_score)
-
-    # End of the contribution
-
-    return F1_score
+    return (ppv, tpr, F1_score) if output == "PRF1" else F1_score
 
 
 def evalParam(methods, param, X, y, cv):
@@ -94,15 +86,25 @@ def evalParam(methods, param, X, y, cv):
         - score: list with same shape as param. score[i][j] = mean score over the folds,
                                                              using method i with parameters param[i][j]
     ------------------------------------------------------------------------------------------------"""
-    from sklearn.model_selection import KFold
+    score = [np.zeros(len(param[i])) for i in range(len(methods))]
+    X = np.array(X)
+    y = np.array(y)
+    
+    kf = KFold(n_splits=cv)
 
-    # Start of the contribution
-    score = [[0, 1], [0]]
-    # TO DO
-    # End of the contribution
+    for train_index, val_index in kf.split(X):
+        X_train, X_val = X[train_index, :], X[val_index, :]
+        y_train, y_val = y[train_index].ravel(), y[val_index].ravel()
+
+        for m in range(len(methods)):
+            for p in range(len(param[m])):
+                methods[m].set_params(**param[m][p])
+                methods[m].fit(X_train, y_train)
+                y_pred = methods[m].predict(X_val)
+                score[m][p] += probas_to_F1(y_val, y_pred)/cv
+
     return score
 
 
 def pred_probas_to_pred_labels(proba_vec, threshold=0.5):
-
     return np.where(proba_vec <= threshold, 0, 1)

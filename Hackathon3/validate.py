@@ -100,7 +100,7 @@ def validate_evalParam():
     param = [paramA, paramB]
 
     X = np.random.rand(100, 15)
-    y = np.random.rand(100)
+    y = (np.random.rand(100) > .5)*1
     cv = 10
     score = evalParam(methods, param, X, y, cv)
     assert isinstance(score, list), "Score is a list of arrays with variable size"
