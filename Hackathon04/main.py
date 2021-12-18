@@ -1,6 +1,6 @@
 """
 Submission file for Hackathon 4.
-Group: <group_number>
+Group: 2
 
 Please, make sure this file passes tests from `validate.py` before submitting!
 
