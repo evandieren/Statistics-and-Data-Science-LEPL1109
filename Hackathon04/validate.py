@@ -60,9 +60,8 @@ def validate_KPrototypes():
 
     k = 5
 
-    cluster_labels, centroids = KPrototypes(
-        X, k=5, n_max=1, metric=distance_metric, **kwargs
-    )
+
+    cluster_labels, centroids = KPrototypes( X, k=5, n_max=1, metric=distance_metric, **kwargs)
 
     assert cluster_labels.shape[0] == X.shape[0], "Wrong output shape for clusters"
     assert centroids.shape == (k, X.shape[1]), "Wrong output shape for centroids"
